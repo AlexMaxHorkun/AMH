@@ -28,12 +28,15 @@ class Model{
 	
 	protected function addField(array $options){
 		if(!isset($options['name'])){
-			throw new \ErrorException('Wrong argument given to '.get_class($this).'::'.__FUNCTION__.' - options must contain proper name');
-			return;
+			if(!$this->silence){
+				throw new \ErrorException('Wrong argument given to '.get_class($this).'::'.__FUNCTION__.' - options must contain proper name');
+			}return;
 		}
 		
 		if(isset($this->fields[$options['name']])){
-			throw new \ErrorException('Field "'.$options['name'].'" in '.get_class($this).' already exists');
+			if(!$this->silence){
+				throw new \ErrorException('Field "'.$options['name'].'" in '.get_class($this).' already exists');
+			}
 			return;
 		}
 		
@@ -88,24 +91,32 @@ class Model{
 			return $this->fields[$name]['value'];
 		}
 		else{
-			throw new \Exception('Model '.get_class($this).' doesn\'t have field "'.$name.'"');
+			if(!$this->silence){
+				throw new \Exception('Model '.get_class($this).' doesn\'t have field "'.$name.'"');
+			}
 			return null;
 		}
 	}
 	
 	public function __set($name,$val){
 		if(!isset($this->fields[$name])){
-			throw new \Exception('Model '.get_class($this).' doesn\'t have field "'.$name.'"');
+			if(!$this->silence){
+				throw new \Exception('Model '.get_class($this).' doesn\'t have field "'.$name.'"');
+			}
 			return null;
 		}
 		
 		if($this->fields[$name]['set']==self::FIELD_SET_ONLYINCONSTRUCTOR){
-			throw new \Exception('Cannot set '.get_class($this).'.'.$name.', premission denied');
+			if(!$this->silence){
+				throw new \Exception('Cannot set '.get_class($this).'.'.$name.', premission denied');
+			}
 			return null;
 		}
 		
 		if($this->fields[$name]['set']==self::FIELD_SET_ONLYONCE&&$this->fields[$name]['wasSet']){
-			throw new \Exception('Cannot set '.get_class($this).'.'.$name.', premission denied');
+			if(!$this->silence){
+				throw new \Exception('Cannot set '.get_class($this).'.'.$name.', premission denied');
+			}
 			return null;
 		}
 		
@@ -117,13 +128,17 @@ class Model{
 							$val=(string)$val;
 						}
 						else{
-							throw new \Exception('Cannot set '.get_class($this).'.'.$name.' to '.$val.', value must be an instance of '.$this->fields[$name]['type']);
+							if(!$this->silence){
+								throw new \Exception('Cannot set '.get_class($this).'.'.$name.' to '.$val.', value must be an instance of '.$this->fields[$name]['type']);
+							}
 							return null;
 						}
 					}
 				}
 				else{
-					throw new \Exception('Cannot set '.get_class($this).'.'.$name.' to '.get_class($val).', value cannot be an object');
+					if(!$this->silence){
+						throw new \Exception('Cannot set '.get_class($this).'.'.$name.' to '.get_class($val).', value cannot be an object');
+					}
 					return null;
 				}
 			}
@@ -135,7 +150,9 @@ class Model{
 						settype($val,$this->fields[$name]['type']);
 					}
 					else{
-						throw new \Exception('Cannot set '.get_class($this).'.'.$name.' to '.$val.', value must be type of '.$this->fields	[$name]['type']);
+						if(!$this->silence){
+							throw new \Exception('Cannot set '.get_class($this).'.'.$name.' to '.$val.', value must be type of '.$this->fields	[$name]['type']);
+						}
 						return null;
 					}
 				}
@@ -156,12 +173,16 @@ class Model{
 	
 	public function __unset($name){
 		if(!isset($this->fields[$name])){
-			throw new \Exception('Model '.get_class($this).' doesn\'t have field "'.$name.'"');
+			if(!$this->silence){
+				throw new \Exception('Model '.get_class($this).' doesn\'t have field "'.$name.'"');
+			}
 			return null;
 		}
 		
 		if(($this->fields[$name]['set']==self::FIELD_SET_ONLYONCE||$this->fields[$name]['set']==self::FIELD_SET_ONLYINCONSTRUCTOR)&&$this->fields[$name]['value']!==null){
-			throw new \Exception('Cannot UNset '.get_class($this).'.'.$name.', premission denied');
+			if(!$this->silence){
+				throw new \Exception('Cannot UNset '.get_class($this).'.'.$name.', premission denied');
+			}
 			return null;
 		}
 		
