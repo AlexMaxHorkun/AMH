@@ -8,8 +8,8 @@ class Test{
 		$this->result['time']=array();
 		$this->result['mem']=array();
 		
-		$this->result['mem'][0]=memory_get_usage();
-		$this->result['time'][0]=microtime(TRUE);		
+		$this->result['time'][0]=microtime(TRUE);
+		$this->result['mem'][0]=memory_get_usage();				
 	}
 	
 	public function finish(){
