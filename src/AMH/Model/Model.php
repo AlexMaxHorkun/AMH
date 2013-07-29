@@ -157,6 +157,14 @@ class Model{
 					}
 				}
 			}
+			else{
+				if(!$this->silence){
+					throw new \Exception('Cannot set '.get_class($this).'.'.$name.' to '.$val.', value must be an object '.
+						((gettype($this->fields[$name]['class'])=='string')? '('.$this->fields[$name]['class'].')':'')
+					);
+				}
+				return null;
+			}
 		}
 		
 		if($this->fields[$name]['setCallback']){
