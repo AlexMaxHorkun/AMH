@@ -42,10 +42,21 @@ class User extends AMHModel{
 			'class'=>'\AMH\User\Model\Group',
 			'typeAutocast'=>FALSE,
 		));
+		
+		$this->addField(array(
+			'name'=>'password',
+			'set'=>AMHModel::FIELD_SET_ONLYONCE,
+			'type'=>'string',
+			'class'=>TRUE,
+			'typeAutocast'=>TRUE,
+			'setCallback'=>function($val){
+				return md5($val);
+			},
+		));
 	}
 	
 	public function __toString(){
-		return $this->name.':'.$this->group;	
+		return $this->name;	
 	}
 }
 ?>
