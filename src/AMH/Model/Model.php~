@@ -2,15 +2,31 @@
 namespace AMH\Model;
 
 class Model{
-	const FIELD_SET_ONLYONCE=0001;
-	const FIELD_SET_ONLYINCONSTRUCTOR=0002;
-	const FIELD_SET_ANYWHERE=0003;
+	const FIELD_SET_ONLYONCE=1001;
+	const FIELD_SET_ONLYINCONSTRUCTOR=1002;
+	const FIELD_SET_ANYWHERE=1003;
 	
 	private $fields=array();
 	
 	protected $silence=FALSE;
 	
-	protected function preConstruct(){}
+	protected function preConstruct(){
+		/*
+		атрибут class: TRUE - подойдет любой обьект, FALSE - никакой обьект не подойдет, 
+			ну или String - строка с названием подходящего класса
+			
+		type: FALSE - любой тип, string - строка с названием типа
+		
+		set/getCallback - функция, принимает (новое) значение поля, и отдают его
+		
+		set: когда можно задавать значение полю - 
+			всегда(Model::FIELD_SET_ANYWHERE),
+			только один раз(Model::FIELD_SET_ONLYONCE),
+			только в конструкторе(Model::FIELD_SET_ONLYINCONSTRUCTOR)
+			
+		typeAutocast - приводить ли к нужному типу?
+		*/
+	}
 	
 	public function __construct(array $fields=array()){
 		$this->preConstruct();
@@ -211,18 +227,89 @@ class Model{
 	
 	protected function setFieldAttribute($name,$attr,$value){
 		if(isset($this->fields[$name])){
+			$exception=new \Exception(get_class($this).'::'.__FUNCTION__.' - can\'t set attribute "'.$attr.'" of field "'.$name.'", wrong value given');
 			
+			switch($attr){
+			case 'set':switch($value){
+				case self::FIELD_SET_ONLYONCE:
+				case self::FIELD_SET_ONLYINCONSTRUCTOR:
+				case self::FIELD_SET_ANYWHERE:
+					break;
+				default: if(!$this->silence){
+						throw $exception;
+					}
+					return;
+				}
+				break;
+				
+			case 'type':
+				if(gettype($value)!='boolean'||gettype($value)!='string'){
+					if(!$this->silence){
+						throw $exception;
+					}
+					return;
+				}
+				$this->fields[$name]['type']=$value;
+				break;	
+			case 'getCallback':
+				if(is_object($value)&&get_class($value)=='Closure'){
+					$this->fields[$name]['getCallback'][0]=$value;
+				}
+				else{
+					if(!$this->silence){
+						throw $exception;
+					}
+					return;
+				}
+				break;
+			case 'setCallback':
+				if(is_object($value)&&get_class($value)=='Closure'){
+					$this->fields[$name]['setCallback'][0]=$value;
+				}
+				else{
+					if(!$this->silence){
+						throw $exception;
+					}
+					return;
+				}
+				break;
+			case 'class':
+				if(gettype($value)=='boolean'||gettype($value)=='string'){
+					$this->fields[$name]['class']=$value;
+				}
+				break;
+			case 'typeAutocast':
+				$this->fields[$name]['class']=(bool)$value;
+				break;
+			}
+		}
+		else{
+			if(!$this->silence){
+				throw new \Exception(get_class($this).'::'.__FUNCTION__.' - error, no such field as "'.$name.'"');
+			}
+			return;
 		}
 	}
 	
-	protected function getFieldAttributes($name){
+	protected function getFieldAttributes($name,$attr=null){
 		if(isset($this->fields[$name])){
 			$attrs=$this->fields[$name];
 			unset($attrs['wasSet'],$attrs['value']);
+			
+			if(gettype($attr)=='string'){
+				if(isset($attrs[$attr])){
+					return $attrs[$attr];
+				}
+				if(!$this->silence){
+					throw new \Exception(get_class($this).'::'.__FUNCTION__.' - can\'t get attribute "'.$attr.'", it doesn\'t exist');
+					return null;
+				}
+			}
+			
 			return $attrs;
 		}
 		if(!$this->silence){
-			
+			throw new \Exception('Instance of '.get_class($this). 'doesn\'t have property "'.$name.'"');
 		}
 		return null;
 	}
