@@ -17,7 +17,7 @@ class User extends \AMH\Mapper\DB implements \AMH\Mapper\MapperInterface{
 	);
 	
 	protected function dbSelect($filter){
-		$query='select `user`.`id`,`user`.`login`,`user`.`name`,`group`.`id` as groupid,`group`.`name` as groupname from `user`,`group` where `user`.`group`=`group`.`id`';
+		$query='select `user`.`id`,`user`.`login`,`user`.`name`,`user`.`password`,`group`.`id` as groupid,`group`.`name` as groupname from `user`,`group` where `user`.`group`=`group`.`id`';
 		if(count($filter)){
 			$where='';
 			foreach($filter as $field=>$val){
