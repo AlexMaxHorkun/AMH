@@ -15,7 +15,7 @@ class User extends AMHModel{
 		
 		$this->addField(array(
 			'name'=>'login',
-			'set'=>AMHModel::FIELD_SET_ONLYONCE,
+			'set'=>AMHModel::FIELD_SET_ALWAYS,
 			'type'=>'string',
 			'class'=>TRUE,
 			'typeAutocast'=>TRUE,
@@ -29,7 +29,7 @@ class User extends AMHModel{
 		
 		$this->addField(array(
 			'name'=>'name',
-			'set'=>AMHModel::FIELD_SET_ONLYONCE,
+			'set'=>AMHModel::FIELD_SET_ALWAYS,
 			'type'=>'string',
 			'class'=>TRUE,
 			'typeAutocast'=>TRUE,
@@ -37,7 +37,7 @@ class User extends AMHModel{
 		
 		$this->addField(array(
 			'name'=>'group',
-			'set'=>AMHModel::FIELD_SET_ONLYONCE,
+			'set'=>AMHModel::FIELD_SET_ALWAYS,
 			'type'=>FALSE,
 			'class'=>'\AMH\User\Model\Group',
 			'typeAutocast'=>FALSE,
@@ -45,13 +45,10 @@ class User extends AMHModel{
 		
 		$this->addField(array(
 			'name'=>'password',
-			'set'=>AMHModel::FIELD_SET_ONLYONCE,
+			'set'=>AMHModel::FIELD_SET_ALWAYS,
 			'type'=>'string',
 			'class'=>TRUE,
 			'typeAutocast'=>TRUE,
-			'setCallback'=>function($val){
-				return md5($val);
-			},
 		));
 	}
 	
