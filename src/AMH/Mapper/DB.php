@@ -11,6 +11,7 @@ abstract class DB implements MapperInterface{
 		'getArrayOnly'=>TRUE,
 		'fieldsMap'=>array(),//ключи - название колонок, значения - названия ствойств
 		'storeLastReceived'=>FALSE,
+		'silence'=>FALSE,
 	);
 	protected $lastUsedFilter=null;
 	
@@ -39,13 +40,17 @@ abstract class DB implements MapperInterface{
 				unset($query);
 			}
 			catch(\PDOException $e){
-				throw new \Exception('Invalid table queries given to '.get_class($this));
+				if(!$this->options['silence']){
+					throw new \Exception('Invalid table queries given to '.get_class($this));
+				}
 				return FALSE;
 			}
 			return TRUE;
 		}
 		else{
-			throw new \Exception(get_class($this).' - Cannot use database, table(s) does not exist and no queries to create them defined');
+			if(!$this->options['silence']){
+				throw new \Exception(get_class($this).' - Cannot use database, table(s) does not exist and no queries to create them defined');
+			}
 			return FALSE;
 		}
 	}
@@ -86,7 +91,9 @@ abstract class DB implements MapperInterface{
 					return FALSE;
 			}
 			else{
-				throw new \Exception('Undefined error while "select" operation, '.get_class($this));
+				if(!$this->options['silence']){
+					throw new \Exception('Undefined error while "select" operation, '.get_class($this));
+				}
 				return FALSE;
 			}
 		}
@@ -133,13 +140,21 @@ abstract class DB implements MapperInterface{
 		case 'Delete':
 			break;
 		default:
-			throw new \Exception('Wrong "action" parametr given to '.get_class($this).'::'.__FUNCTION__);
+			if(!$this->options['silence']){
+				throw new \Exception('Wrong "action" parametr given to '.get_class($this).'::'.__FUNCTION__);
+			}
 			return null;
 		}
 		
 		try{
 			$method='db'.$action;
 			$res=$this->$method($item);
+			if($res===FALSE){
+				if(!$this->options['silence']){
+					throw new \Exception(get_class($this).' - operation "'.$action.'" failed');
+				}
+				return FALSE;
+			}
 		}
 		catch(\PDOException $e){
 			if($e->getCode()=='42S02'){
@@ -147,6 +162,9 @@ abstract class DB implements MapperInterface{
 				return $this->manage($action,$item);
 			}
 			else{
+				if(!$this->options['silence']){
+					throw new \Exception(get_class($this).' - operation "'.$action.'" failed');
+				}
 				return FALSE;
 			}
 		}
