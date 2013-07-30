@@ -56,7 +56,7 @@ class User extends AMHModel{
 	}
 	
 	public function __toString(){
-		return $this->name;	
+		return (string)$this->name;	
 	}
 }
 ?>
