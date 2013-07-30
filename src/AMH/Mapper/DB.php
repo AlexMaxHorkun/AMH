@@ -52,6 +52,7 @@ abstract class DB implements MapperInterface{
 	
 	public function __construct(\PDO $pdo,array $options=array()){
 		$this->pdo=$pdo;
+		$this->pdo->setAttribute(\PDO::ATTR_ERRMODE,\PDO::ERRMODE_EXCEPTION);
 		$this->setOptions($options);
 	}
 	
