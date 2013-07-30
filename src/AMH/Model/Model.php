@@ -4,7 +4,7 @@ namespace AMH\Model;
 class Model{
 	const FIELD_SET_ONLYONCE=1001;
 	const FIELD_SET_ONLYINCONSTRUCTOR=1002;
-	const FIELD_SET_ANYWHERE=1003;
+	const FIELD_SET_ALWAYS=1003;
 	
 	private $fields=array();
 	
@@ -58,7 +58,7 @@ class Model{
 		
 		$name=$options['name'];
 		$field=array(
-			'set'=>self::FIELD_SET_ANYWHERE,
+			'set'=>self::FIELD_SET_ALWAYS,
 			'value'=>null,
 			'type'=>FALSE,
 			'getCallback'=>null,
@@ -72,7 +72,7 @@ class Model{
 			switch($options['set']){
 			case self::FIELD_SET_ONLYONCE:
 			case self::FIELD_SET_ONLYINCONSTRUCTOR:
-			case self::FIELD_SET_ANYWHERE:
+			case self::FIELD_SET_ALWAYS:
 				$field['set']=$options['set'];
 			}
 		}
@@ -233,7 +233,7 @@ class Model{
 			case 'set':switch($value){
 				case self::FIELD_SET_ONLYONCE:
 				case self::FIELD_SET_ONLYINCONSTRUCTOR:
-				case self::FIELD_SET_ANYWHERE:
+				case self::FIELD_SET_ALWAYS:
 					break;
 				default: if(!$this->silence){
 						throw $exception;
