@@ -6,7 +6,7 @@ class Model{
 	const FIELD_SET_ONLYINCONSTRUCTOR=0002;
 	const FIELD_SET_ANYWHERE=0003;
 	
-	protected $fields=array();
+	private $fields=array();
 	
 	protected $silence=FALSE;
 	
@@ -207,6 +207,24 @@ class Model{
 			$arr[$name]=$field['value'];
 		}
 		return $arr;
+	}
+	
+	protected function setFieldAttribute($name,$attr,$value){
+		if(isset($this->fields[$name])){
+			
+		}
+	}
+	
+	protected function getFieldAttributes($name){
+		if(isset($this->fields[$name])){
+			$attrs=$this->fields[$name];
+			unset($attrs['wasSet'],$attrs['value']);
+			return $attrs;
+		}
+		if(!$this->silence){
+			throw new \Exception('Instance of '.get_class($this). 'doesn\'t have property "'.$name.'"');
+		}
+		return null;
 	}
 }
 ?>
