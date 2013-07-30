@@ -9,7 +9,7 @@ class Test{
 		$this->result['mem']=array();
 		
 		$this->result['time'][0]=microtime(TRUE);
-		$this->result['mem'][0]=memory_get_usage();				
+		$this->result['mem'][0]=memory_get_peak_usage();				
 	}
 	
 	public function finish(){

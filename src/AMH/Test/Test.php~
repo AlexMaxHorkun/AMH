@@ -9,16 +9,15 @@ class Test{
 		$this->result['mem']=array();
 		
 		$this->result['time'][0]=microtime(TRUE);
-		$this->result['mem'][0]=memory_get_usage();				
+		$this->result['mem'][0]=memory_get_peak_usage();				
 	}
 	
 	public function finish(){
-		echo memory_get_usage()-$this->result['mem'][0];
 		if(!count($this->result['time'])||!count($this->result['mem'])){
 			return;
 		}
 		
-		$this->result['mem'][1]=memory_get_usage();
+		$this->result['mem'][1]=memory_get_peak_usage();
 		$this->result['time'][1]=microtime(TRUE);
 	}
 	
