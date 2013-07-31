@@ -139,8 +139,22 @@ class Model{
 			if($this->fields[$name]['class']!==TRUE){
 				if($this->fields[$name]['class']){
 					if(!($val instanceof $this->fields[$name]['class'])){
-						if($this->fields[$name]['type']&&$this->fields[$name]['typeAutocast']&&($this->fields[$name]	['type']=='string'&&method_exists($val,'__toString'))){
-							$val=(string)$val;
+						if($this->fields[$name]['type']&&$this->fields[$name]['typeAutocast']){
+							if($this->fields[$name]	['type']=='string'&&method_exists($val,'__toString')){
+								$val=(string)$val;
+							}
+							else	
+								if($this->fields[$name]['type']=='array'){
+									if(!is_array($val)){
+										$val=(array)$val;
+									}
+								}
+								else{
+									if(!$this->silence){
+										throw new \Exception('Cannot set '.get_class($this).'.'.$name.' to '.$val.', value must be an instance of '.$this->fields[$name]['class'].', or can be converted to '.$this->fields[$name]['type']);
+									}
+									return null;
+								}
 						}
 						else{
 							if(!$this->silence){
