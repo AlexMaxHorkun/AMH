@@ -74,6 +74,15 @@ abstract class DB implements MapperInterface{
 		}
 	}
 	
+	protected function processSelected($res){
+		$items=array();
+		$res->setFetchMode(\PDO::FETCH_ASSOC);
+		while($row=$res->fetch()){
+			$items[]=$this->fetch($row);
+		}
+		return $items;
+	}
+	
 	public function get(array $filter=array()){
 		if(is_array($this->items)&&count($this->items)&&$this->options['storeLastReceived']&&$filter==$this->lastUsedFilter){
 			return $this->items;
@@ -98,13 +107,7 @@ abstract class DB implements MapperInterface{
 			}
 		}
 		
-		$items=array();
-		
-		$res->setFetchMode(\PDO::FETCH_ASSOC);
-		while($row=$res->fetch()){
-			$items[]=$this->fetch($row);
-		}
-		
+		$items=$this->processSelected($res);		
 		if((count($items)==1)&&(!$this->options['getArrayOnly'])){
 			$items=$items[0];
 		}
