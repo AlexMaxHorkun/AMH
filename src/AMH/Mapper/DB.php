@@ -72,6 +72,9 @@ abstract class DB implements MapperInterface{
 		if(isset($options['storeLastReceived'])){
 			$this->options['storeLastReceived']=$options['storeLastReceived'];
 		}
+		if(isset($options['silence'])&&is_array($options['silence'])){
+			$this->options['silence']=$options['silence'];
+		}
 	}
 	
 	protected function processSelected($res){
