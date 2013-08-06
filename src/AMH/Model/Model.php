@@ -88,11 +88,11 @@ class Model{
 			$field['typeAutocast']=(bool)$options['typeAutocast'];
 		}
 		
-		if(isset($options['getCallback'])){
-			$field['getCallback'][0]=$options['getCallback'];
+		if(isset($options['getCallback'])&&($options['getCallback'] instanceof \Closure)){
+			$field['getCallback']=$options['getCallback'];
 		}
-		if(isset($options['setCallback'])){
-			$field['setCallback'][0]=$options['setCallback'];
+		if(isset($options['setCallback'])&&($options['setCallback'] instanceof \Closure)){
+			$field['setCallback']=$options['setCallback'];
 		}
 		
 		$this->fields[$name]=$field;
@@ -101,7 +101,7 @@ class Model{
 	public function __get($name){
 		if(isset($this->fields[$name])){
 			if($this->fields[$name]['getCallback']){
-				return $this->fields[$name]['getCallback'][0]($this->fields[$name]['value']);
+				return $this->fields[$name]['getCallback']($this->fields[$name]['value']);
 			}
 			return $this->fields[$name]['value'];
 		}
@@ -197,7 +197,7 @@ class Model{
 		}
 		
 		if($this->fields[$name]['setCallback']){
-			$val=$this->fields[$name]['setCallback'][0]($val);
+			$val=$this->fields[$name]['setCallback']($val);
 		}
 		$this->fields[$name]['value']=$val;
 		if(!$this->fields[$name]['wasSet'])

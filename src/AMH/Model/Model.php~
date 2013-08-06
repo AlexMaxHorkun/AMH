@@ -4,7 +4,7 @@ namespace AMH\Model;
 class Model{
 	const FIELD_SET_ONLYONCE=1001;
 	const FIELD_SET_ONLYINCONSTRUCTOR=1002;
-	const FIELD_SET_ANYWHERE=1003;
+	const FIELD_SET_ALWAYS=1003;
 	
 	private $fields=array();
 	
@@ -32,8 +32,7 @@ class Model{
 		$this->preConstruct();
 		foreach($fields as $field=>$val){
 			if(isset($this->fields[$field])){
-				$this->fields[$field]['value']=$val;
-				$this->fields[$field]['wasSet']=TRUE;
+				$this->$field=$val;
 			}
 		}
 	}
@@ -58,7 +57,7 @@ class Model{
 		
 		$name=$options['name'];
 		$field=array(
-			'set'=>self::FIELD_SET_ANYWHERE,
+			'set'=>self::FIELD_SET_ALWAYS,
 			'value'=>null,
 			'type'=>FALSE,
 			'getCallback'=>null,
@@ -72,7 +71,7 @@ class Model{
 			switch($options['set']){
 			case self::FIELD_SET_ONLYONCE:
 			case self::FIELD_SET_ONLYINCONSTRUCTOR:
-			case self::FIELD_SET_ANYWHERE:
+			case self::FIELD_SET_ALWAYS:
 				$field['set']=$options['set'];
 			}
 		}
@@ -89,11 +88,11 @@ class Model{
 			$field['typeAutocast']=(bool)$options['typeAutocast'];
 		}
 		
-		if(isset($options['getCallback'])){
-			$field['getCallback'][0]=$options['getCallback'];
+		if(isset($options['getCallback'])&&($options['getCallback'] instanceof \Closure)){
+			$field['getCallback']=$options['getCallback'];
 		}
-		if(isset($options['setCallback'])){
-			$field['setCallback'][0]=$options['setCallback'];
+		if(isset($options['setCallback'])&&($options['setCallback'] instanceof \Closure)){
+			$field['setCallback']=$options['setCallback'];
 		}
 		
 		$this->fields[$name]=$field;
@@ -140,8 +139,22 @@ class Model{
 			if($this->fields[$name]['class']!==TRUE){
 				if($this->fields[$name]['class']){
 					if(!($val instanceof $this->fields[$name]['class'])){
-						if($this->fields[$name]['type']&&$this->fields[$name]['typeAutocast']&&($this->fields[$name]	['type']=='string'&&method_exists($val,'__toString'))){
-							$val=(string)$val;
+						if($this->fields[$name]['type']&&$this->fields[$name]['typeAutocast']){
+							if($this->fields[$name]	['type']=='string'&&method_exists($val,'__toString')){
+								$val=(string)$val;
+							}
+							else	
+								if($this->fields[$name]['type']=='array'){
+									if(!is_array($val)){
+										$val=(array)$val;
+									}
+								}
+								else{
+									if(!$this->silence){
+										throw new \Exception('Cannot set '.get_class($this).'.'.$name.' to '.$val.', value must be an instance of '.$this->fields[$name]['class'].', or can be converted to '.$this->fields[$name]['type']);
+									}
+									return null;
+								}
 						}
 						else{
 							if(!$this->silence){
@@ -184,7 +197,7 @@ class Model{
 		}
 		
 		if($this->fields[$name]['setCallback']){
-			$val=$this->fields[$name]['setCallback'][0]($val);
+			$val=$this->fields[$name]['setCallback']($val);
 		}
 		$this->fields[$name]['value']=$val;
 		if(!$this->fields[$name]['wasSet'])
@@ -233,7 +246,7 @@ class Model{
 			case 'set':switch($value){
 				case self::FIELD_SET_ONLYONCE:
 				case self::FIELD_SET_ONLYINCONSTRUCTOR:
-				case self::FIELD_SET_ANYWHERE:
+				case self::FIELD_SET_ALWAYS:
 					break;
 				default: if(!$this->silence){
 						throw $exception;
@@ -276,6 +289,12 @@ class Model{
 			case 'class':
 				if(gettype($value)=='boolean'||gettype($value)=='string'){
 					$this->fields[$name]['class']=$value;
+				}
+				else{
+					if(!$this->silence){
+						throw $exception;
+					}
+					return;
 				}
 				break;
 			case 'typeAutocast':
